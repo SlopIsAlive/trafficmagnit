@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from iso4217 import Currency
+
+from core.utility.currency import currency_by_code
 from .models import ExchangeRate, TrackedCurrency
 
 
@@ -15,10 +16,10 @@ class TrackedCurrencySerializer(serializers.ModelSerializer):
         fields = ["id", "iso_code", "code", "name", "is_active", "current_rate", "added_at"]
 
     def get_code(self, obj) -> str:
-        return Currency(obj.iso_code).code
+        return currency_by_code(obj.iso_code).code
 
     def get_name(self, obj) -> str:
-        return Currency(obj.iso_code).currency_name
+        return currency_by_code(obj.iso_code).currency_name
 
 
 class AddTrackedCurrencySerializer(serializers.ModelSerializer):

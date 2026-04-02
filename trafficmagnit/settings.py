@@ -2,12 +2,8 @@ import os
 import warnings
 
 from pathlib import Path
-from dotenv import load_dotenv
 
 from __logging__ import get_logger_config
-
-load_dotenv()
-
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -105,40 +101,26 @@ TEMPLATES = [
 WSGI_APPLICATION = "trafficmagnit.wsgi.application"
 
 
-# not production code, but really useful for local development without needing to setup postgres
 _DB_NAME = os.environ.get("DB_NAME") or os.environ.get("POSTGRES_DB")
 _DB_USER = os.environ.get("DB_USER") or os.environ.get("POSTGRES_USER")
 _DB_PASSWORD = os.environ.get("DB_PASSWORD") or os.environ.get("POSTGRES_PASSWORD")
 _DB_HOST = os.environ.get("DB_HOST") or os.environ.get("POSTGRES_HOST", "")
-_DB_PORT = os.environ.get("DB_PORT") or os.environ.get("POSTGRES_PORT", "5432")
+_DB_PORT = os.environ.get("INTERNAL_POSTGRES_PORT") or os.environ.get("INTERNAL_POSTGRES_PORT", "5432")
 
-if _DB_NAME and _DB_USER:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": _DB_NAME,
-            "USER": _DB_USER,
-            "PASSWORD": _DB_PASSWORD or "",
-            "HOST": _DB_HOST,
-            "PORT": _DB_PORT,
-            "CONN_MAX_AGE": 600,
-            "OPTIONS": {
-                "connect_timeout": 5,
-            },
-        }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": _DB_NAME,
+        "USER": _DB_USER,
+        "PASSWORD": _DB_PASSWORD or "",
+        "HOST": _DB_HOST,
+        "PORT": _DB_PORT,
+        "CONN_MAX_AGE": 600,
+        "OPTIONS": {
+            "connect_timeout": 5,
+        },
     }
-else:
-    if not DEBUG:
-        raise RuntimeError("No postgres credentials found; shouldnt start in production like that")
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
-
-IS_POSTGRES = DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql"
-
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},

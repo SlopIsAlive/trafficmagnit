@@ -1,4 +1,4 @@
-from django.db.models import OuterRef, Subquery
+from django.db.models import Subquery
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from drf_spectacular.types import OpenApiTypes
@@ -6,6 +6,8 @@ from iso4217 import Currency
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from currency_exchange.tasks import fetch_rates
 
 from .models import ExchangeRate, TrackedCurrency
 from .serializers import (
@@ -21,7 +23,10 @@ class TrackedCurrencyListView(generics.ListAPIView):
     serializer_class = TrackedCurrencySerializer
 
     def get_queryset(self):
-        return TrackedCurrency.objects.annotate(current_rate=Subquery(ExchangeRate.latest_rate_query()))
+        return (
+                TrackedCurrency.objects.filter(is_active=True)
+                .annotate(current_rate=Subquery(ExchangeRate.latest_rate_query()))
+            )
 
 
 @extend_schema(tags=["currencies"])
@@ -30,7 +35,7 @@ class AvailableCurrenciesView(APIView):
     def get(self, request):
         tracked = set(TrackedCurrency.objects.values_list("iso_code", flat=True))
         available = [
-            {"iso_code": c.value, "code": c.code, "name": c.currency_name}
+            {"iso_code": c.number, "code": c.code, "name": c.currency_name}
             for c in Currency
             if c.value is not None and c.value not in tracked
         ]
@@ -60,6 +65,7 @@ class AddTrackedCurrencyView(generics.CreateAPIView):
                 )
             instance.is_active = True
             instance.save(update_fields=["is_active", "updated_at"])
+        fetch_rates.delay(iso_code=instance.iso_code)
         return Response(TrackedCurrencySerializer(instance).data, status=status.HTTP_201_CREATED)
 
 

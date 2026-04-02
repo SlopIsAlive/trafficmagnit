@@ -3,13 +3,13 @@ from django.db import models
 from django.utils import timezone
 from iso4217 import Currency
 
+from core.utility.currency import currency_by_code
+
 
 def validate_iso_code(value):
-    try:
-        Currency(value)
-    except ValueError:
+    matched = [c for c in Currency if c.number == value]
+    if not matched:
         raise ValidationError(f"{value} is not a valid iso 4217 currency code")
-
 
 class TrackedCurrency(models.Model):
     iso_code = models.PositiveSmallIntegerField(unique=True, validators=[validate_iso_code,])
@@ -22,13 +22,13 @@ class TrackedCurrency(models.Model):
         db_table = "tracked_currency"
 
     def __str__(self):
-        return f"{Currency(self.iso_code).code} active={self.is_active}"
+        return f"{currency_by_code(self.iso_code).code} active={self.is_active}"
 
     def save(self, *args, **kwargs):
         validate_iso_code(self.iso_code)
         super().save(*args, **kwargs)
 
-# All currencies exchange rates are stored with respect to uah
+# All currencies exchange rates are stored with respect to uah, in real production i feel like we would do this differently
 class ExchangeRate(models.Model):
     currency = models.ForeignKey(TrackedCurrency, on_delete=models.CASCADE, related_name="rates")
     exchange_rate = models.DecimalField(max_digits=18, decimal_places=6)
