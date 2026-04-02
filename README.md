@@ -25,6 +25,12 @@ docker compose up --build
 
 That's it. Migrations run automatically before the app starts.
 
+Management command usage example:
+
+python manage.py export_rates_csv
+python manage.py export_rates_csv --output /tmp/rates.csv
+
+
 ## Notes
 
 `iso4217` is used purely for currency validation and lookup. If you'd rather not have the dependency, it's easy to replace — the ISO 4217 standard rarely changes, so hardcoding the relevant currency codes directly is a reasonable alternative.
