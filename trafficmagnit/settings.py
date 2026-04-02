@@ -2,8 +2,11 @@ import os
 import warnings
 
 from pathlib import Path
+from dotenv import load_dotenv
 
 from __logging__ import get_logger_config
+
+load_dotenv()
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -65,6 +68,8 @@ INSTALLED_APPS = [
     "request_id",
     "django_celery_beat",
     "drf_spectacular",
+    "currency_exchange",
+    "core",
 ]
 
 
@@ -203,19 +208,30 @@ REST_FRAMEWORK = {
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.URLPathVersioning",
     "DEFAULT_VERSION": "v1",
     "ALLOWED_VERSIONS": ["v1"],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
     # "EXCEPTION_HANDLER": "core.exceptions.drf_exception_handler",
 }
 
 # TODO: SPECTACULAR_SETTINGS
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Currency exchange rate",
-    "DESCRIPTION": "",
+    "TITLE": "TrafficMagnit Currency API",
+    "DESCRIPTION": "Currency exchange rate tracking service",
     "VERSION": "1.0.0",
-    "SERVE_INCLUDE_SCHEMA": False,
-    "SCHEMA_PATH_PREFIX": r"/api/",
-    "TAGS": [
-        {"name": "", "description": ""},
-    ],
+    "SECURITY": [{"bearerAuth": []}],
+    "COMPONENTS": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+            }
+        }
+    },
 }
 
 RABBITMQ_USER = os.environ["RABBITMQ_USER"]

@@ -38,3 +38,7 @@ class ExchangeRate(models.Model):
 
     class Meta:
         db_table = "exchange_rate"
+
+    @classmethod
+    def latest_rate_query(cls):
+        return cls.objects.filter(currency=models.OuterRef("pk")).order_by("-fetched_at").values("exchange_rate")[:1]
