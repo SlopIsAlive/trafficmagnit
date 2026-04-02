@@ -4,6 +4,7 @@ default:
     @just --justfile /app/app.justfile --list
 
 dev:
+    python manage.py collectstatic --noinput
     python manage.py runserver 0.0.0.0:8000
 
 # run celery worker locally
@@ -41,7 +42,7 @@ test:
 
 # Wait for DB (useful for entrypoints)
 wait-for-db:
-    while ! nc -z db 6969; do sleep 1; done;
+    while ! nc -z db 5432; do sleep 1; done;
 
 worker-start:
     celery -A billing worker --loglevel=info

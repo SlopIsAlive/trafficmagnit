@@ -7,7 +7,7 @@ from core.api.monobank import mono_client
 from currency_exchange.models import ExchangeRate, TrackedCurrency
 
 MONO_RATES_CACHE_KEY = "monobank_rates"
-MONO_RATES_CACHE_TTL = 65  # seconds, slightly over a minute
+MONO_RATES_CACHE_TTL = 65
 
 @shared_task(name="currency.fetch_rates", bind=True, max_retries=3)
 def fetch_rates(self, iso_code: int | None = None):
