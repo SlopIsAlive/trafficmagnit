@@ -30,6 +30,11 @@ Management command usage example:
 python manage.py export_rates_csv
 python manage.py export_rates_csv --output /tmp/rates.csv
 
+Or for docker: 
+
+docker compose exec web python manage.py export_rates_csv
+docker compose exec web python manage.py export_rates_csv --output /tmp/rates.csv
+
 
 ## Notes
 
