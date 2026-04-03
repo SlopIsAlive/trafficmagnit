@@ -26,15 +26,16 @@ docker compose up --build
 That's it. Migrations run automatically before the app starts.
 
 Management command usage example:
-
+```bash
 python manage.py export_rates_csv
 python manage.py export_rates_csv --output /tmp/rates.csv
+```
 
 Or for docker: 
-
+```bash
 docker compose exec web python manage.py export_rates_csv
 docker compose exec web python manage.py export_rates_csv --output /tmp/rates.csv
-
+```
 
 ## Notes
 
